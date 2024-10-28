@@ -6,10 +6,10 @@ import numpy as np
 import os
 
 # Initialize variables
-original_img = None  # Store the original image for resetting filters
+original_img = None
 img = None
 img_display = None
-patterns = []  # List to store pattern images and names
+patterns = []
 
 # Functionality for the buttons
 def load_image():
@@ -17,22 +17,49 @@ def load_image():
     file_path = filedialog.askopenfilename()
     if file_path:
         original_img = Image.open(file_path)
-        original_img = original_img.resize((600, 600))  # Resize image to 600x600
+        original_img = original_img.resize((600, 600))  # Resize to 600x600
         img = original_img.copy()
-        update_canvas(img)
+
+        # Check if image is a night sky before updating canvas
+        if is_night_sky(img):
+            result_label.config(text="Night sky detected!")
+            update_canvas(img)
+        else:
+            result_label.config(text="Not a night sky image. Please upload a night sky image.")
 
 def update_canvas(image):
-    """Helper function to update the canvas with a given image."""
     global img_display
     img_display = ImageTk.PhotoImage(image)
     canvas.config(width=600, height=600)
     canvas.create_image(0, 0, anchor=tk.NW, image=img_display)
     canvas.image = img_display
 
+def is_night_sky(image):
+    """Check if the image is a night sky by assessing brightness and detecting star-like features."""
+    # Convert PIL image to grayscale OpenCV format
+    img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
+    
+    # Step 1: Brightness Check
+    brightness = np.mean(img_cv)
+    if brightness > 70:  # Threshold for brightness, adjust based on sample images
+        return False
+    
+    # Step 2: Detect Star-like Features
+    # Use thresholding to find bright spots, which may indicate stars
+    _, thresh_img = cv2.threshold(img_cv, 200, 255, cv2.THRESH_BINARY)  # Threshold for star detection
+    white_pixels = cv2.countNonZero(thresh_img)
+    
+    # Check if there's a significant number of "star-like" pixels (small bright points)
+    if white_pixels < 50:  # Threshold for the minimum number of star-like spots
+        return False
+    
+    return True
+
+# Additional processing functions remain the same
 def convert_to_grayscale():
     global img
     if img:
-        img = ImageOps.grayscale(img)  # Convert to grayscale using Pillow
+        img = ImageOps.grayscale(img)
         update_canvas(img)
 
 def sharpen_image():
@@ -49,9 +76,8 @@ def sharpen_image():
 def remove_salt_pepper():
     global img
     if img:
-        # Convert PIL image to OpenCV format, apply median filter, and convert back
-        img_cv = np.array(img.convert('L'))  # Convert to grayscale if necessary
-        img_cv = cv2.medianBlur(img_cv, 3)  # Apply median filter with kernel size 3
+        img_cv = np.array(img.convert('L'))
+        img_cv = cv2.medianBlur(img_cv, 3)
         img = Image.fromarray(img_cv)
         update_canvas(img)
 
@@ -68,17 +94,16 @@ def rotate_image():
         update_canvas(img)
 
 def load_patterns():
-    # Load predefined star patterns from the "patterns" folder
     pattern_dir = "patterns/"
     for filename in os.listdir(pattern_dir):
         if filename.endswith(".jpg") or filename.endswith(".png"):
-            pattern_img = cv2.imread(os.path.join(pattern_dir, filename), 0)  # Load as grayscale
-            patterns.append((pattern_img, filename.split('.')[0]))  # Store pattern and its name
+            pattern_img = cv2.imread(os.path.join(pattern_dir, filename), 0)
+            patterns.append((pattern_img, filename.split('.')[0]))
 
 def find_pattern():
     global img
     if img:
-        img_cv = np.array(img.convert('L'))  # Convert to grayscale numpy array
+        img_cv = np.array(img.convert('L'))
         orb = cv2.ORB_create()
         kp1, des1 = orb.detectAndCompute(img_cv, None)
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -103,17 +128,14 @@ def find_pattern():
 
 # Create the main window
 root = tk.Tk()
-root.title("Image Processing App")
+root.title("Night Sky Image Preprocessing App")
 root.geometry("600x650")
 
-# Create a canvas to display the image
-canvas = tk.Canvas(root, width=600, height=600)  # Default canvas size to match 600x600
+canvas = tk.Canvas(root, width=600, height=600)
 canvas.grid(row=0, column=0, rowspan=7)
 
-# Load patterns at the start
 load_patterns()
 
-# Create buttons
 load_btn = tk.Button(root, text="Load Image", command=load_image)
 load_btn.grid(row=0, column=1)
 
@@ -138,5 +160,4 @@ reset_btn.grid(row=6, column=1)
 result_label = tk.Label(root, text="No match found")
 result_label.grid(row=7, column=0, columnspan=2)
 
-# Start the GUI loop
 root.mainloop()

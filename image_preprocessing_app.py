@@ -36,26 +36,22 @@ def update_canvas(image):
 
 def is_night_sky(image):
     """Check if the image is a night sky by assessing brightness and detecting star-like features."""
-    # Convert PIL image to grayscale OpenCV format
     img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
     
     # Step 1: Brightness Check
     brightness = np.mean(img_cv)
-    if brightness > 70:  # Threshold for brightness, adjust based on sample images
+    if brightness > 70:
         return False
     
     # Step 2: Detect Star-like Features
-    # Use thresholding to find bright spots, which may indicate stars
-    _, thresh_img = cv2.threshold(img_cv, 200, 255, cv2.THRESH_BINARY)  # Threshold for star detection
+    _, thresh_img = cv2.threshold(img_cv, 200, 255, cv2.THRESH_BINARY)
     white_pixels = cv2.countNonZero(thresh_img)
-    
-    # Check if there's a significant number of "star-like" pixels (small bright points)
-    if white_pixels < 50:  # Threshold for the minimum number of star-like spots
+    if white_pixels < 50:
         return False
     
     return True
 
-# Additional processing functions remain the same
+# Image processing functions
 def convert_to_grayscale():
     global img
     if img:
@@ -110,6 +106,7 @@ def find_pattern():
 
         best_match_name = None
         best_match_score = float('inf')
+        best_match_ratio = 0.0
 
         for pattern_img, pattern_name in patterns:
             kp2, des2 = orb.detectAndCompute(pattern_img, None)
@@ -117,22 +114,27 @@ def find_pattern():
                 matches = bf.match(des1, des2)
                 matches = sorted(matches, key=lambda x: x.distance)
                 match_score = sum([match.distance for match in matches[:10]])
+                match_ratio = len(matches) / len(kp2) if kp2 else 0.0
+
                 if match_score < best_match_score:
                     best_match_score = match_score
                     best_match_name = pattern_name
+                    best_match_ratio = match_ratio
 
         if best_match_name:
             result_label.config(text=f"Best Match: {best_match_name}")
+            match_ratio_label.config(text=f"Matching Ratio: {best_match_ratio:.2f}")
         else:
             result_label.config(text="No match found")
+            match_ratio_label.config(text="Matching Ratio: N/A")
 
 # Create the main window
 root = tk.Tk()
 root.title("Night Sky Image Preprocessing App")
-root.geometry("600x650")
+root.geometry("600x700")
 
 canvas = tk.Canvas(root, width=600, height=600)
-canvas.grid(row=0, column=0, rowspan=7)
+canvas.grid(row=0, column=0, rowspan=8)
 
 load_patterns()
 
@@ -159,5 +161,9 @@ reset_btn.grid(row=6, column=1)
 
 result_label = tk.Label(root, text="No match found")
 result_label.grid(row=7, column=0, columnspan=2)
+
+# Separate label for matching ratio
+match_ratio_label = tk.Label(root, text="Matching Ratio: N/A")
+match_ratio_label.grid(row=8, column=0, columnspan=2)
 
 root.mainloop()

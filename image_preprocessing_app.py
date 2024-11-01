@@ -11,6 +11,8 @@ img = None
 img_display = None
 patterns = []
 
+
+
 # Functionality for the buttons
 def load_image():
     global img, img_display, original_img
@@ -167,3 +169,4 @@ match_ratio_label = tk.Label(root, text="Matching Ratio: N/A")
 match_ratio_label.grid(row=8, column=0, columnspan=2)
 
 root.mainloop()
+ 

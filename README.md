@@ -28,7 +28,7 @@ A Python-based desktop application using Tkinter and OpenCV for preprocessing ni
    ```bash
    git clone https://github.com/SudharakaA/night-sky-preprocessing-app.git
    cd night-sky-preprocessing-app
-2. **Install the required dependencies: Make sure you have Python installed (version 3.7+ is recommended).
+2. Install the required dependencies: Make sure you have Python installed (version 3.7+ is recommended).
   ```bash
       pip install -r requirements.txt
 

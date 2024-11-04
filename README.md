@@ -32,6 +32,3 @@ A Python-based desktop application using Tkinter and OpenCV for preprocessing ni
   ```bash
       pip install -r requirements.txt
 
-3. **If you don't have a requirements.txt file, you can install dependencies individually:
-  ```bash
-       pip install opencv-python-headless numpy pillow

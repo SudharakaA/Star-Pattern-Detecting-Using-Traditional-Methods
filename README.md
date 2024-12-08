@@ -11,8 +11,8 @@ A Python-based desktop application using Tkinter and OpenCV for preprocessing ni
   - Sharpen (using Laplacian kernel)
   - Remove Salt & Pepper Noise
   - Rotate Image
-- **Pattern Matching**: Matches loaded images with predefined star patterns to identify known star formations.
-- **Reset Filters**: Allows users to remove all applied filters and revert to the original image.
+- **Pattern Matching**: Matches loaded images with predefined star patterns to identify known star formations
+- **Reset Filters**: Allows users to remove all applied filters and revert to the original image
 
 ## Technologies & Libraries Used
 

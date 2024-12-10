@@ -20,7 +20,7 @@ A Python-based desktop application using Tkinter and OpenCV for preprocessing ni
 - **Tkinter**: For creating the graphical user interface.
 - **PIL (Pillow)**: For image manipulation and display.
 - **OpenCV**: For image processing tasks, such as detecting star-like features and matching patterns.
-- **NumPy**: For numerical operations and array manipulation
+- **NumPy**: For numerical operations and array manipulation.
 
 ## Installation
 
